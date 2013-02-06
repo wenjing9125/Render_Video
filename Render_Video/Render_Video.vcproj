@@ -357,5 +357,9 @@
 		</File>
 	</Files>
 	<Globals>
+		<Global
+			Name="RESOURCE_FILE"
+			Value="Render_Video.rc"
+		/>
 	</Globals>
 </VisualStudioProject>

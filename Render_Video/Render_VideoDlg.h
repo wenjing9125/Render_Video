@@ -28,4 +28,18 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+////ADV_SDK////////////////////////////////////////////////////////
+private:
+	LONG AdditionalPropertyAccess();
+private:
+	HANDLE m_moduleHandle;
+	PBYTE  m_buffer;
+	ULONG  m_bufLen;
+///////////////////////////////////////////////////////////////////
+public:
+	afx_msg void OnBnClickedOk();
+	afx_msg void OnBnClickedButton1();
+	afx_msg void OnBnClickedButton3();
+	afx_msg void OnBnClickedButton2();
+	afx_msg void OnBnClickedButton4();
 };
