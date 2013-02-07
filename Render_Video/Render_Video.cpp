@@ -73,10 +73,10 @@ BOOL CRender_VideoApp::InitInstance()
 	RUN_ALL_TESTS();  
 	HWND hwnd = GetConsoleWindow();  
 	SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE);  
-	//AfxMessageBox(_T("about to exit!"));  
-	//return false;
+	AfxMessageBox(_T("about to exit!"));  
+	return false;
 
-//#else
+#else
 
 
 	// InitCommonControlsEx() is required on Windows XP if an application
@@ -118,6 +118,7 @@ BOOL CRender_VideoApp::InitInstance()
 
 	// Since the dialog has been closed, return FALSE so that we exit the
 	//  application, rather than start the application's message pump.
+
 	return FALSE;
 #endif //GTEST
 }

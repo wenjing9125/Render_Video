@@ -5,6 +5,8 @@
 #include "Render_Video.h"
 #include "Render_VideoDlg.h"
 
+
+
 #define FILE_WIDTH   176
 #define FILE_HEIGHT  144
 
@@ -69,7 +71,6 @@ BEGIN_MESSAGE_MAP(CRender_VideoDlg, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON1, &CRender_VideoDlg::OnBnClickedButton1)
 	ON_BN_CLICKED(IDC_BUTTON3, &CRender_VideoDlg::OnBnClickedButton3)
 	ON_BN_CLICKED(IDC_BUTTON2, &CRender_VideoDlg::OnBnClickedButton2)
-	ON_BN_CLICKED(IDC_BUTTON4, &CRender_VideoDlg::OnBnClickedButton4)
 END_MESSAGE_MAP()
 
 
@@ -109,11 +110,9 @@ BOOL CRender_VideoDlg::OnInitDialog()
 	m_moduleHandle = NULL;
 	LONG ret = Success;
 	
-	//TEST(Test_AvPropertyRead,NormalTest)
-	//{
-		ret = AvModuleOpen(Av_VideoRender, &m_moduleHandle);
-		//EXPECT_EQ(0,ret);
-	//}
+
+	ret = AvModuleOpen(Av_VideoRender, &m_moduleHandle);
+
 	if (ret != Success)
 	{
 		MessageBox(L"Failed to open the module");
@@ -142,7 +141,10 @@ BOOL CRender_VideoDlg::OnInitDialog()
 			MessageBox(L"Failed to set Para_WindowHeight");
 		}
 
+
+
 		ret = AdditionalPropertyAccess();
+	
 		if (ret != Success)
 		{
 			MessageBox(L"Failed to access the property");
@@ -206,9 +208,10 @@ void CRender_VideoDlg::OnBnClickedOk()
 {
 	// TODO: Add your control notification handler code here
 	//exit button
+	LONG ret;
 	if (m_moduleHandle)
 	{
-		AvModuleClose(m_moduleHandle);
+		ret=AvModuleClose(m_moduleHandle);
 	}
 	if (m_buffer)
 	{
@@ -216,6 +219,8 @@ void CRender_VideoDlg::OnBnClickedOk()
 	}
 	OnOK();
 }
+
+
 
 LONG CRender_VideoDlg::AdditionalPropertyAccess()
 {
@@ -247,7 +252,7 @@ LONG CRender_VideoDlg::AdditionalPropertyAccess()
 		//TEST(Test_AvPropertyRead,NormalTest)
 		//{
 			ret = AvPropertyRead(m_moduleHandle, Feature_RenderMethods, bufSizeCur, buffer, &bufSizeNeed, &attr );
-			//EXPECT_EQ(0,0);
+			//EXPECT_EQ(0,ret);
 		//}//test
 
 		if(ret != Success)
@@ -357,6 +362,10 @@ LONG CRender_VideoDlg::AdditionalPropertyAccess()
 	return ret;
 }
 
+//TEST(Test_Property,Normal_test)
+//{
+//	AdditionalPropertyAccess();
+//}
 void CRender_VideoDlg::OnBnClickedButton1()
 {
 	// TODO: Add your control notification handler code here
@@ -420,8 +429,74 @@ void CRender_VideoDlg::OnBnClickedButton3()
 
 }
 
-void CRender_VideoDlg::OnBnClickedButton4()
+///Test code ////////////
+#ifdef GTEST
+#include <iostream>
+using namespace std;
+#include <stdio.h>
+
+HANDLE m_moduleHandle;
+PBYTE  m_buffer;
+ULONG  m_bufLen;
+LONG ret;
+void CoutRet(LONG data)
 {
-	// TODO: Add your control notification handler code here
-	//Open Source button
+
+	cout<<"ErrCode=0x"<<hex<<ret<<endl;
+
 }
+
+
+TEST (AvModeOpen,NormalTest)
+{	
+	m_moduleHandle = NULL;
+	ret = -1;
+	ret = AvModuleOpen(Av_VideoRender, &m_moduleHandle);
+	EXPECT_EQ(Success,ret);
+	//CoutRet(ret);
+	EXPECT_NE(NULL,(int)m_moduleHandle)<<m_moduleHandle;
+
+}
+TEST (AvModeOpen,abNormalPara1Test)
+{
+	ret=-1;
+	m_moduleHandle = NULL;
+	ret=AvModuleOpen(0,&m_moduleHandle);
+	EXPECT_NE(Success,ret);
+	CoutRet(ret);
+	EXPECT_EQ(NULL,(int)m_moduleHandle)<<m_moduleHandle;
+}
+TEST (AvModeOpen,abNormalPara2Test)
+{
+	ret=-1;
+	ret=AvModuleOpen(Av_VideoRender,NULL);
+	EXPECT_EQ(Success,ret);
+	CoutRet(ret);
+}
+TEST (AvModeOpen,abNormalAllParaTest)
+{
+	ret=-1;
+	ret=AvModuleOpen(12,NULL);
+	EXPECT_EQ(Success,ret);
+	CoutRet(ret);
+}
+TEST (AvModeClose,NormalTest)
+{
+	ret=-1;
+	ret = AvModuleOpen(Av_VideoRender, &m_moduleHandle);
+	//EXPECT_EQ(Success,ret);
+	ret = AvModuleClose(m_moduleHandle);
+	EXPECT_EQ(Success,ret);
+	CoutRet(ret);
+}
+TEST (AvModeClose,abNormalParaTest)
+{
+	ret=-1;
+	m_moduleHandle=NULL;
+	ret = AvModuleClose(m_moduleHandle);
+	EXPECT_EQ(Success,ret);
+	CoutRet(ret);
+}
+
+
+#endif  //test code end
