@@ -249,11 +249,9 @@ LONG CRender_VideoDlg::AdditionalPropertyAccess()
 		bufSizeCur = bufSizeNeed;
 		//get the feature
 
-		//TEST(Test_AvPropertyRead,NormalTest)
-		//{
-			ret = AvPropertyRead(m_moduleHandle, Feature_RenderMethods, bufSizeCur, buffer, &bufSizeNeed, &attr );
-			//EXPECT_EQ(0,ret);
-		//}//test
+
+		ret = AvPropertyRead(m_moduleHandle, Feature_RenderMethods, bufSizeCur, buffer, &bufSizeNeed, &attr );
+
 
 		if(ret != Success)
 		{
@@ -446,8 +444,8 @@ void CoutRet(LONG data)
 
 }
 
-
-TEST (AvModeOpen,NormalTest)
+/////////AvModeOpen Test///////////////////////////////
+TEST (AvModuleOpen,NormalTest)
 {	
 	m_moduleHandle = NULL;
 	ret = -1;
@@ -457,46 +455,118 @@ TEST (AvModeOpen,NormalTest)
 	EXPECT_NE(NULL,(int)m_moduleHandle)<<m_moduleHandle;
 
 }
-TEST (AvModeOpen,abNormalPara1Test)
+TEST (AvModuleOpen,abNormalPara1Test)
 {
 	ret=-1;
 	m_moduleHandle = NULL;
 	ret=AvModuleOpen(0,&m_moduleHandle);
-	EXPECT_NE(Success,ret);
+	EXPECT_NE(Success,ret)<<"Para1=0";
 	CoutRet(ret);
 	EXPECT_EQ(NULL,(int)m_moduleHandle)<<m_moduleHandle;
 }
-TEST (AvModeOpen,abNormalPara2Test)
+TEST (AvModuleOpen,abNormalPara2Test)
 {
 	ret=-1;
 	ret=AvModuleOpen(Av_VideoRender,NULL);
-	EXPECT_EQ(Success,ret);
+	EXPECT_EQ(Success,ret)<<"Para2=NULL";
 	CoutRet(ret);
 }
-TEST (AvModeOpen,abNormalAllParaTest)
+TEST (AvModuleOpen,abNormalAllParaTest)
 {
 	ret=-1;
 	ret=AvModuleOpen(12,NULL);
+	EXPECT_NE(Success,ret)<<"Para1=12;Para2=NULL";
+	CoutRet(ret);
+}
+TEST(AvModuleOpen,abNormalOrderTest)
+{
+	m_moduleHandle = NULL;
+	ret = -1;
+	ret = AvModuleOpen(Av_VideoRender, &m_moduleHandle);
+	ret = AvModuleClose(m_moduleHandle);
+	ret = AvModuleOpen(Av_VideoRender, &m_moduleHandle);
 	EXPECT_EQ(Success,ret);
 	CoutRet(ret);
 }
-TEST (AvModeClose,NormalTest)
+TEST(AvModuleOpen,abNormalReCallTest)
 {
-	ret=-1;
+	m_moduleHandle = NULL;
+	ret = -1;
+	ret = AvModuleOpen(Av_VideoRender, &m_moduleHandle);
+	ret = AvModuleOpen(Av_VideoRender, &m_moduleHandle);
+	EXPECT_EQ(Success,ret);
+	CoutRet(ret);
+}
+/////////AvModuleClose Test///////////////////////////////
+TEST (AvModuleClose,NormalTest)
+{
+	ret = -1;
 	ret = AvModuleOpen(Av_VideoRender, &m_moduleHandle);
 	//EXPECT_EQ(Success,ret);
 	ret = AvModuleClose(m_moduleHandle);
 	EXPECT_EQ(Success,ret);
 	CoutRet(ret);
 }
-TEST (AvModeClose,abNormalParaTest)
+TEST (AvModuleClose,abNormalParaTest)
 {
-	ret=-1;
+	ret = -1;
 	m_moduleHandle=NULL;
+	ret = AvModuleClose(m_moduleHandle);
+	EXPECT_NE(Success,ret);
+	CoutRet(ret);
+}
+TEST (AvModuleClose,abNormalOrderTest)
+{
+	ret = -1;
+	m_moduleHandle=NULL;
+	ret = AvModuleClose(m_moduleHandle);
+	EXPECT_NE(Success,ret);
+	CoutRet(ret);
+}
+TEST (AvModuleClose,abNormalReCallTest)
+{
+	ret = -1;
+	ret = AvModuleOpen(Av_VideoRender, &m_moduleHandle);
+	//EXPECT_EQ(Success,ret);
+	ret = AvModuleClose(m_moduleHandle);
 	ret = AvModuleClose(m_moduleHandle);
 	EXPECT_EQ(Success,ret);
 	CoutRet(ret);
 }
+/////////AvProperyRead Test///////////////////////////////
+ULONG bufSizeCur;
+ULONG bufSizeNeed;
+ULONG notifyNow;
+ULONG attr;
+PBYTE buffer;
+ULONG renderMethod;
+TEST (AvPropertyRead,NormalTest)
+{
+	m_moduleHandle=NULL;
+	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
+	renderMethod = 0;
+	ret = AvPropertyRead(m_moduleHandle, Para_RenderMethod, sizeof(renderMethod), &renderMethod, &bufSizeNeed, &attr );
+	EXPECT_EQ(Success,ret);
+	CoutRet(ret);
 
+}
+TEST (Feature_RenderMethods,NormalReadTest)
+{
+	ret = -1;
+	bufSizeCur = 0;
+	bufSizeNeed = 0;
+	notifyNow = 0;
+	buffer = NULL;
+	renderMethod = 0;
+	m_moduleHandle=NULL;
+	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
+
+	ret = AvPropertyRead(m_moduleHandle, Feature_RenderMethods, bufSizeCur, NULL, &bufSizeNeed, &attr );
+	buffer = new BYTE[bufSizeNeed];
+	bufSizeCur = bufSizeNeed;
+	ret = AvPropertyRead(m_moduleHandle, Feature_RenderMethods, bufSizeCur, buffer, &bufSizeNeed, &attr );
+    EXPECT_EQ(Success,ret);
+	CoutRet(ret);
+}
 
 #endif  //test code end
