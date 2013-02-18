@@ -433,10 +433,10 @@ void CRender_VideoDlg::OnBnClickedButton3()
 using namespace std;
 #include <stdio.h>
 
-HANDLE m_moduleHandle;
-PBYTE  m_buffer;
-ULONG  m_bufLen;
-LONG ret;
+HANDLE m_moduleHandle=NULL;
+PBYTE  m_buffer=NULL;
+ULONG  m_bufLen=0;
+LONG ret=-1;
 void CoutRet(LONG data)
 {
 
@@ -447,11 +447,12 @@ void CoutRet(LONG data)
 /////////AvModeOpen Test///////////////////////////////
 TEST (AvModuleOpen,NormalTest)
 {	
-	m_moduleHandle = NULL;
+	
 	ret = -1;
+	m_moduleHandle = NULL;
 	ret = AvModuleOpen(Av_VideoRender, &m_moduleHandle);
 	EXPECT_EQ(Success,ret);
-	//CoutRet(ret);
+	CoutRet(ret);
 	EXPECT_NE(NULL,(int)m_moduleHandle)<<m_moduleHandle;
 
 }
@@ -460,7 +461,7 @@ TEST (AvModuleOpen,abNormalPara1Test)
 	ret=-1;
 	m_moduleHandle = NULL;
 	ret=AvModuleOpen(0,&m_moduleHandle);
-	EXPECT_NE(Success,ret)<<"Para1=0";
+	EXPECT_EQ(ErrorDeviceUnrecognized,ret)<<"moduleType=0 (-1,1...11)";
 	CoutRet(ret);
 	EXPECT_EQ(NULL,(int)m_moduleHandle)<<m_moduleHandle;
 }
@@ -468,14 +469,14 @@ TEST (AvModuleOpen,abNormalPara2Test)
 {
 	ret=-1;
 	ret=AvModuleOpen(Av_VideoRender,NULL);
-	EXPECT_EQ(Success,ret)<<"Para2=NULL";
+	EXPECT_EQ(Success,ret)<<"handle=NULL";
 	CoutRet(ret);
 }
 TEST (AvModuleOpen,abNormalAllParaTest)
 {
 	ret=-1;
 	ret=AvModuleOpen(12,NULL);
-	EXPECT_NE(Success,ret)<<"Para1=12;Para2=NULL";
+	EXPECT_EQ(ErrorDeviceUnrecognized,ret)<<"moduleType=12;Handle=NULL";
 	CoutRet(ret);
 }
 TEST(AvModuleOpen,abNormalOrderTest)
@@ -502,7 +503,6 @@ TEST (AvModuleClose,NormalTest)
 {
 	ret = -1;
 	ret = AvModuleOpen(Av_VideoRender, &m_moduleHandle);
-	//EXPECT_EQ(Success,ret);
 	ret = AvModuleClose(m_moduleHandle);
 	EXPECT_EQ(Success,ret);
 	CoutRet(ret);
@@ -510,9 +510,8 @@ TEST (AvModuleClose,NormalTest)
 TEST (AvModuleClose,abNormalParaTest)
 {
 	ret = -1;
-	m_moduleHandle=NULL;
-	ret = AvModuleClose(m_moduleHandle);
-	EXPECT_NE(Success,ret);
+	ret = AvModuleClose(NULL);
+	EXPECT_NE(Success,ret);cout<<"handle=NULL";
 	CoutRet(ret);
 }
 TEST (AvModuleClose,abNormalOrderTest)
@@ -526,11 +525,12 @@ TEST (AvModuleClose,abNormalOrderTest)
 TEST (AvModuleClose,abNormalReCallTest)
 {
 	ret = -1;
+	m_moduleHandle=NULL;
 	ret = AvModuleOpen(Av_VideoRender, &m_moduleHandle);
 	//EXPECT_EQ(Success,ret);
 	ret = AvModuleClose(m_moduleHandle);
 	ret = AvModuleClose(m_moduleHandle);
-	EXPECT_EQ(Success,ret);
+	EXPECT_EQ(ErrorDeviceUnrecognized,ret);
 	CoutRet(ret);
 }
 /////////AvProperyRead Test///////////////////////////////
@@ -544,12 +544,72 @@ TEST (AvPropertyRead,NormalTest)
 {
 	m_moduleHandle=NULL;
 	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
+	renderMethod = 1;
+	ret = AvPropertyRead(m_moduleHandle, Para_RenderMethod, sizeof(renderMethod), &renderMethod, &bufSizeNeed, &attr );
+	EXPECT_EQ(Success,ret);cout<<"renderMethod="<<renderMethod<<endl;
+	CoutRet(ret);
+}
+TEST (AvPropertyRead,abNormalParaTest)
+{
+	m_moduleHandle=NULL;
+	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
+	renderMethod = 0;
+	ret = AvPropertyRead(NULL, Para_RenderMethod, sizeof(renderMethod), &renderMethod, &bufSizeNeed, &attr );
+	EXPECT_EQ(ErrorHandleNotValid,ret);cout<<"handle=NULL;";
+	CoutRet(ret);
+	ret = AvPropertyRead(m_moduleHandle, 78, sizeof(renderMethod), &renderMethod, &bufSizeNeed, &attr );
+	EXPECT_EQ(ErrorPropNotSpted,ret);cout<<"PropertyId=78 (0-77);";
+	CoutRet(ret);
+	ret = AvPropertyRead(m_moduleHandle, Para_RenderMethod, 0, &renderMethod, &bufSizeNeed, &attr );
+	EXPECT_EQ(ErrorBufferTooSmall,ret);cout<<"bufferSize=0;";
+	CoutRet(ret);
+	ret = AvPropertyRead(m_moduleHandle, Para_RenderMethod, sizeof(renderMethod), NULL, &bufSizeNeed, &attr );
+	EXPECT_EQ(Success,ret);cout<<"buffer=NULL;";
+	CoutRet(ret);
+	ret = AvPropertyRead(m_moduleHandle, Para_RenderMethod, sizeof(renderMethod), &renderMethod, NULL, &attr );
+	EXPECT_EQ(Success,ret);cout<<"dataLength=NULL;";
+	CoutRet(ret);
+	ret = AvPropertyRead(m_moduleHandle, Para_RenderMethod, sizeof(renderMethod), &renderMethod, &bufSizeNeed, NULL );
+	EXPECT_EQ(Success,ret);cout<<"attribute=NULL;";
+	CoutRet(ret);
+	ret = AvPropertyRead(m_moduleHandle, Para_RenderMethod, sizeof(renderMethod), NULL, NULL, NULL );
+	EXPECT_EQ(Success,ret);cout<<"Para456=NULL;";
+	CoutRet(ret);
+}
+TEST (AvPropertyRead,abNormalOrderTest)
+{
+	m_moduleHandle=NULL;
 	renderMethod = 0;
 	ret = AvPropertyRead(m_moduleHandle, Para_RenderMethod, sizeof(renderMethod), &renderMethod, &bufSizeNeed, &attr );
+	EXPECT_EQ(ErrorHandleNotValid,ret);
+	CoutRet(ret);
+}
+TEST (AvPropertyRead,abNormalReCallTest)
+{
+	m_moduleHandle=NULL;
+	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
+	ULONG renderMethod1 = 1,renderMethod2 = 2;
+	ret = AvPropertyRead(m_moduleHandle, Para_RenderMethod, sizeof(renderMethod1), &renderMethod1, &bufSizeNeed, &attr );
+	ret = AvPropertyRead(m_moduleHandle, Para_RenderMethod, sizeof(renderMethod2), &renderMethod2, &bufSizeNeed, &attr );
 	EXPECT_EQ(Success,ret);
+	EXPECT_EQ(renderMethod1,renderMethod2);
 	CoutRet(ret);
 
 }
+/////////AvProperyWrite Test///////////////////////////////
+TEST (AvPropertyWrite,NormalTest)
+{
+	m_moduleHandle=NULL;
+	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
+	ULONG renderMethod1 = VR_DirectDraw,renderMethod2 = 1;
+	ret = AvPropertyWrite(m_moduleHandle, Para_RenderMethod, sizeof(renderMethod1), &renderMethod1, notifyNow );
+	EXPECT_EQ(Success,ret);cout<<"renderMethod1="<<renderMethod1<<endl;
+	CoutRet(ret);
+	ret = AvPropertyRead(m_moduleHandle, Para_RenderMethod, sizeof(renderMethod2), &renderMethod2, &bufSizeNeed, &attr );
+	EXPECT_EQ(renderMethod1,renderMethod2);
+	
+}
+/////////Feature_RenderMethods Test///////////////////////////////
 TEST (Feature_RenderMethods,NormalReadTest)
 {
 	ret = -1;
@@ -565,8 +625,14 @@ TEST (Feature_RenderMethods,NormalReadTest)
 	buffer = new BYTE[bufSizeNeed];
 	bufSizeCur = bufSizeNeed;
 	ret = AvPropertyRead(m_moduleHandle, Feature_RenderMethods, bufSizeCur, buffer, &bufSizeNeed, &attr );
-    EXPECT_EQ(Success,ret);
+	EXPECT_EQ(Success,ret);cout<<"Feature_RenderMethods:";
+	for (int i = 0;i < bufSizeCur;i++)
+	{
+		cout<<(ULONG)buffer[i];
+	}
+	cout<<endl;
 	CoutRet(ret);
 }
+
 
 #endif  //test code end
