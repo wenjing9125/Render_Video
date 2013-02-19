@@ -609,6 +609,51 @@ TEST (AvPropertyWrite,NormalTest)
 	EXPECT_EQ(renderMethod1,renderMethod2);
 	
 }
+TEST (AvPropertyWrite,abNormalParaTest)
+{
+	m_moduleHandle=NULL;
+	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
+	renderMethod = VR_DirectDraw;
+	ret = AvPropertyWrite(NULL, Para_RenderMethod, sizeof(renderMethod), &renderMethod, notifyNow );
+	EXPECT_EQ(ErrorHandleNotValid,ret);cout<<"handle=NULL";
+	CoutRet(ret);
+	ret = AvPropertyWrite(m_moduleHandle, 78, sizeof(renderMethod), &renderMethod, notifyNow );
+	EXPECT_EQ(ErrorPropNotSpted,ret);cout<<"PropertyId=78 (0-77);";
+	CoutRet(ret);
+	ret = AvPropertyWrite(m_moduleHandle, Para_RenderMethod, 0, &renderMethod, notifyNow );
+	EXPECT_EQ(ErrorBufferTooSmall,ret);cout<<"dataLength=0;";
+	CoutRet(ret);
+	ret = AvPropertyWrite(m_moduleHandle, Para_RenderMethod, sizeof(renderMethod), NULL, notifyNow );
+	EXPECT_EQ(ErrorBufferIsNull,ret);cout<<"buffer=NULL;";
+	CoutRet(ret);
+	ret = AvPropertyWrite(m_moduleHandle, Para_RenderMethod, sizeof(renderMethod), &renderMethod, 3);
+	EXPECT_EQ(ErrorParamOutOfRange,ret);cout<<"notifyNow=3 (0,1);";
+	CoutRet(ret);
+	renderMethod=1;
+	ret = AvPropertyWrite(m_moduleHandle, Para_RenderMethod,  sizeof(renderMethod), &renderMethod, notifyNow );
+	EXPECT_EQ(ErrorPropValueNotSpted,ret);cout<<"buffer=&renderMethod;renderMethod=1(only 0);";
+	CoutRet(ret);
+
+}
+TEST (AvPropertyWrite,abNormalOrderTest)
+{
+	m_moduleHandle=NULL;
+	renderMethod = VR_DirectDraw;
+	ret = AvPropertyWrite(m_moduleHandle, Para_RenderMethod, sizeof(renderMethod), &renderMethod, notifyNow );
+	EXPECT_EQ(ErrorHandleNotValid,ret)<<"Do not call AvModuleOpen!  ";
+	CoutRet(ret);
+}
+TEST (AvPropertyWrite,abNormalReCallTest)
+{
+	m_moduleHandle=NULL;
+	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
+	renderMethod = VR_DirectDraw;
+	ret = AvPropertyWrite(m_moduleHandle, Para_RenderMethod, sizeof(renderMethod), &renderMethod, notifyNow );
+	EXPECT_EQ(Success,ret)<<"first call AvPropertyWrite!  ";
+	ret = AvPropertyWrite(m_moduleHandle, Para_RenderMethod, sizeof(renderMethod), &renderMethod, notifyNow );
+	EXPECT_EQ(Success,ret)<<"second call AvPropertyWrite!  ";
+	CoutRet(ret);
+}
 /////////Feature_RenderMethods Test///////////////////////////////
 TEST (Feature_RenderMethods,NormalReadTest)
 {
@@ -633,6 +678,14 @@ TEST (Feature_RenderMethods,NormalReadTest)
 	cout<<endl;
 	CoutRet(ret);
 }
-
+TEST (Feature_RenderMethods,abNormalWriteTest)
+{
+	m_moduleHandle=NULL;
+	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
+	renderMethod = VR_DirectDraw;
+	ret = AvPropertyWrite(m_moduleHandle, Feature_RenderMethods, sizeof(renderMethod), &renderMethod, notifyNow );
+	EXPECT_EQ(ErrorPropReadOnly,ret)<<"Feature_RenderMethods write value!";
+	CoutRet(ret);
+}
 
 #endif  //test code end
