@@ -536,7 +536,7 @@ TEST (AvModuleClose,abNormalReCallTest)
 /////////AvProperyRead Test///////////////////////////////
 ULONG bufSizeCur;
 ULONG bufSizeNeed;
-ULONG notifyNow;
+ULONG notifyNow = 0;
 ULONG attr;
 PBYTE buffer;
 ULONG renderMethod;
@@ -687,5 +687,206 @@ TEST (Feature_RenderMethods,abNormalWriteTest)
 	EXPECT_EQ(ErrorPropReadOnly,ret)<<"Feature_RenderMethods write value!";
 	CoutRet(ret);
 }
+/////////Feature_FourCCs Test///////////////////////////////
+ULONG fourCC = 0;
+TEST (Feature_FourCCs,NormalReadTest)
+{
+	ret = -1;
+	bufSizeCur = 0;
+	bufSizeNeed = 0;
+	notifyNow = 0;
+	buffer = NULL;
+	renderMethod = 0;
+	m_moduleHandle=NULL;
+	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
 
+	ret = AvPropertyRead(m_moduleHandle, Feature_FourCCs, bufSizeCur, NULL, &bufSizeNeed, &attr );
+	buffer = new BYTE[bufSizeNeed];
+	bufSizeCur = bufSizeNeed;
+	ret = AvPropertyRead(m_moduleHandle, Feature_FourCCs, bufSizeCur, buffer, &bufSizeNeed, &attr );
+	EXPECT_EQ(Success,ret);
+	cout<<"MAKEFOURCC('Y', 'V', '1', '2')="<<MAKEFOURCC('Y', 'V', '1', '2')<<endl;
+	cout<<"Feature_FourCCs:";
+	int bufValue=0;int j=0;
+	for (int i = 0;i < bufSizeCur;i++)
+	{
+		//cout<<(ULONG)buffer[i];
+		bufValue=bufValue|((ULONG)buffer[i] << j);
+		j=i*8+8;
+	}
+	cout<<bufValue<<endl;
+	EXPECT_EQ(MAKEFOURCC('Y', 'V', '1', '2'),bufValue);
+	CoutRet(ret);
+
+}
+TEST (Feature_FourCCs,abNormalWriteTest)
+{
+	m_moduleHandle=NULL;
+	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
+	fourCC = MAKEFOURCC('Y', 'V', '1', '2');
+	ret = AvPropertyWrite(m_moduleHandle, Feature_FourCCs, sizeof(fourCC), &fourCC, notifyNow );
+	EXPECT_EQ(ErrorPropReadOnly,ret)<<"Feature_FourCCs write value!";
+	CoutRet(ret);
+}
+
+/////////Para_ RenderMethod Test///////////////////////////////
+TEST (Para_RenderMethod,NormalReadTest)
+{
+	m_moduleHandle=NULL;
+	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
+	renderMethod = 1;
+	ret = AvPropertyRead(m_moduleHandle, Para_RenderMethod, sizeof(renderMethod), &renderMethod, &bufSizeNeed, &attr );
+	EXPECT_EQ(Success,ret);
+	CoutRet(ret);
+	EXPECT_EQ(VR_DirectDraw,renderMethod);
+	cout<<" Default renderMethod="<<renderMethod<<endl;
+	
+}
+TEST (Para_RenderMethod,NormalWriteTest)
+{
+	m_moduleHandle=NULL;
+	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
+	ULONG renderMethod1 = VR_DirectDraw,renderMethod2 = 1;
+	ret = AvPropertyWrite(m_moduleHandle, Para_RenderMethod, sizeof(renderMethod1), &renderMethod1, notifyNow );
+	EXPECT_EQ(Success,ret);
+	CoutRet(ret);
+	ret = AvPropertyRead(m_moduleHandle, Para_RenderMethod, sizeof(renderMethod2), &renderMethod2, &bufSizeNeed, &attr );
+	EXPECT_EQ(renderMethod1,renderMethod2);
+}
+TEST (Para_RenderMethod,abNormalWriteTest)
+{
+	m_moduleHandle=NULL;
+	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
+	ULONG renderMethod1 = 2,renderMethod2 = 2;
+	ret = AvPropertyWrite(m_moduleHandle, Para_RenderMethod, sizeof(renderMethod1), &renderMethod1, notifyNow );
+	EXPECT_EQ(ErrorPropValueNotSpted,ret);
+	CoutRet(ret);
+	ret = AvPropertyRead(m_moduleHandle, Para_RenderMethod, sizeof(renderMethod2), &renderMethod2, &bufSizeNeed, &attr );
+	EXPECT_NE(renderMethod1,renderMethod2)<<"renderMethod2= "<<renderMethod2<<endl;
+}
+
+/////////Para_FourCC Test///////////////////////////////
+TEST (Para_FourCC,NormalReadTest)
+{
+	m_moduleHandle=NULL;
+	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
+	fourCC = 1;
+	ret = AvPropertyRead(m_moduleHandle, Para_FourCC, sizeof(fourCC), &fourCC, &bufSizeNeed, &attr );
+	EXPECT_EQ(Success,ret);
+	CoutRet(ret);
+	EXPECT_EQ(MAKEFOURCC('Y', 'V', '1', '2'),fourCC);
+	cout<<" Default fourCC="<<fourCC<<endl;
+	cout<<"MAKEFOURCC('Y', 'V', '1', '2')="<<MAKEFOURCC('Y', 'V', '1', '2')<<endl;
+
+}
+TEST (Para_FourCC,NormalWriteTest)
+{
+	m_moduleHandle=NULL;
+	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
+	ULONG fourCC1 = MAKEFOURCC('Y', 'V', '1', '2'), fourCC2 = 1;
+	ret = AvPropertyWrite(m_moduleHandle, Para_FourCC, sizeof(fourCC1), &fourCC1, notifyNow );
+	EXPECT_EQ(Success,ret);
+	CoutRet(ret);
+	ret = AvPropertyRead(m_moduleHandle, Para_FourCC, sizeof(fourCC2), &fourCC2, &bufSizeNeed, &attr );
+	EXPECT_EQ(MAKEFOURCC('Y', 'V', '1', '2'),fourCC2);
+
+	
+}
+TEST (Para_FourCC,abNormalWriteTest)
+{
+	m_moduleHandle=NULL;
+	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
+	EXPECT_EQ(Success,ret);
+	ULONG fourCC1 = 2, fourCC2 = 2;
+	ret = AvPropertyWrite(m_moduleHandle, Para_FourCC, sizeof(fourCC1), &fourCC1, notifyNow );
+	EXPECT_EQ(ErrorPropValueNotSpted,ret);
+	CoutRet(ret);
+	ret = AvPropertyRead(m_moduleHandle, Para_RenderMethod, sizeof(fourCC2), &fourCC2, &bufSizeNeed, &attr );
+	EXPECT_NE(fourCC1,fourCC2)<<"fourCC2= "<<fourCC2<<endl;
+}
+/////////Para_WindowHandle Test///////////////////////////////
+HWND hwnd;
+//#define IDC_DISP_RND 1005
+TEST (Para_WindowHandle,NormalReadTest)
+{
+	m_moduleHandle=NULL;
+	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
+	EXPECT_EQ(Success,ret);
+	//GetDlgItem(IDC_DISP_RND, &hwnd);
+	ULONG wndHandle=1000; //= ULONG(hwnd);
+	ret = AvPropertyRead(m_moduleHandle, Para_WindowHandle, sizeof(wndHandle), &wndHandle,NULL,0);
+	EXPECT_EQ(Success,ret);
+	CoutRet(ret);
+	EXPECT_EQ(0,wndHandle);cout<<"Default wndHandle= "<<wndHandle<<endl;
+}
+TEST (Para_WindowHandle,NormalWriteTest)
+{
+	m_moduleHandle=NULL;
+	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
+	EXPECT_EQ(Success,ret);
+	//GetDlgItem(IDC_DISP_RND, &hwnd);
+	ULONG wndHandle1=1001,wndHandle2=0;//= ULONG(hwnd);
+	ret = AvPropertyWrite(m_moduleHandle, Para_WindowHandle, sizeof(wndHandle1), &wndHandle1, 0 );
+	EXPECT_EQ(Success,ret);
+	CoutRet(ret);
+	ret = AvPropertyRead(m_moduleHandle, Para_WindowHandle, sizeof(wndHandle2), &wndHandle2,NULL,0);
+	EXPECT_EQ(Success,ret);
+	EXPECT_EQ(1001,wndHandle2)<<"read wndHandle= "<<wndHandle2<<endl;
+}
+TEST (Para_WindowHandle,abNormalWriteTest)
+{
+	m_moduleHandle=NULL;
+	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
+	EXPECT_EQ(Success,ret);
+	//GetDlgItem(IDC_DISP_RND, &hwnd);
+	ULONG wndHandle1=0,wndHandle2=1;//= ULONG(hwnd);
+	ret = AvPropertyWrite(m_moduleHandle, Para_WindowHandle, sizeof(wndHandle1), &wndHandle1, 0 );
+	EXPECT_EQ(Success,ret);
+	CoutRet(ret);
+	ret = AvPropertyRead(m_moduleHandle, Para_WindowHandle, sizeof(wndHandle2), &wndHandle2,NULL,0);
+	EXPECT_EQ(Success,ret);
+	EXPECT_EQ(wndHandle1,wndHandle2)<<"read wndHandle= "<<wndHandle2<<endl;
+}
+/////////Para_ImageWidth Test///////////////////////////////
+TEST(Para_WindowWidth,NormalTest)
+{
+	
+}
 #endif  //test code end
+
+/*m_buffer = NULL;
+
+m_moduleHandle = NULL;
+LONG ret = Success;
+
+
+ret = AvModuleOpen(Av_VideoRender, &m_moduleHandle);
+
+if (ret != Success)
+{
+	MessageBox(L"Failed to open the module");
+} else {
+	HWND hwnd;
+	GetDlgItem(IDC_DISP_RND, &hwnd);
+	ULONG wndHandle = ULONG(hwnd);
+	ret = AvPropertyWrite(m_moduleHandle, Para_WindowHandle, sizeof(wndHandle), &wndHandle, 0 );
+
+	if(ret != Success)
+	{
+		MessageBox(L"Failed to set Para_WindowHandle");
+	}
+
+	ULONG width = FILE_WIDTH;
+	ret = AvPropertyWrite(m_moduleHandle, Para_WindowWidth, sizeof(width), &width, 0 );
+	if(ret != Success)
+	{
+		MessageBox(L"Failed to set Para_WindowWidth");
+	}
+
+	ULONG height = FILE_HEIGHT;
+	ret = AvPropertyWrite(m_moduleHandle, Para_WindowHeight, sizeof(height), &height, 0 );
+	if(ret != Success)
+	{
+		MessageBox(L"Failed to set Para_WindowHeight");
+	}
+*/
