@@ -848,45 +848,109 @@ TEST (Para_WindowHandle,abNormalWriteTest)
 	EXPECT_EQ(wndHandle1,wndHandle2)<<"read wndHandle= "<<wndHandle2<<endl;
 }
 /////////Para_ImageWidth Test///////////////////////////////
-TEST(Para_WindowWidth,NormalTest)
+TEST(Para_WindowWidth,NormalReadTest)
 {
-	
+	m_moduleHandle=NULL;
+	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
+	EXPECT_EQ(Success,ret);
+	ULONG width = FILE_WIDTH;
+	ret = AvPropertyRead(m_moduleHandle,  Para_WindowWidth, sizeof(width), &width, NULL,0);
+	EXPECT_EQ(Success,ret);
+	CoutRet(ret);
+	EXPECT_EQ(0,width);cout<<"Default width= "<<width<<endl;
+	//ULONG width = FILE_WIDTH;
+	//ret = AvPropertyWrite(m_moduleHandle, Para_WindowWidth, sizeof(width), &width, 0 );
+}
+TEST(Para_WindowWidth,NormalWriteTest)
+{
+	m_moduleHandle=NULL;
+	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
+	EXPECT_EQ(Success,ret);
+	ULONG width1 = FILE_WIDTH, width2 = 1;
+	ret = AvPropertyWrite(m_moduleHandle, Para_WindowWidth, sizeof(width1), &width1, 0 );
+	EXPECT_EQ(Success,ret);
+	CoutRet(ret);
+	ret = AvPropertyRead(m_moduleHandle,  Para_WindowWidth, sizeof(width2), &width2, NULL,0);
+	EXPECT_EQ(width1,width2);
+}
+/////////Para_WindowHeight Test///////////////////////////////
+TEST(Para_WindowHeight,NormalReadTest)
+{
+	m_moduleHandle=NULL;
+	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
+	EXPECT_EQ(Success,ret);
+	ULONG height = FILE_HEIGHT;
+	ret = AvPropertyRead(m_moduleHandle,  Para_WindowHeight, sizeof(height), &height, NULL,0);
+	EXPECT_EQ(Success,ret);
+	CoutRet(ret);
+	EXPECT_EQ(0,height);cout<<"Default height= "<<height<<endl;
+}
+TEST(Para_WindowHeight,NormalWriteTest)
+{
+	m_moduleHandle=NULL;
+	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
+	EXPECT_EQ(Success,ret);
+	ULONG height1 = FILE_HEIGHT, height2 = 1;
+	ret = AvPropertyWrite(m_moduleHandle, Para_WindowHeight, sizeof(height1), &height1, 0 );
+	EXPECT_EQ(Success,ret);
+	CoutRet(ret);
+	ret = AvPropertyRead(m_moduleHandle,  Para_WindowHeight, sizeof(height2), &height2, NULL,0);
+	EXPECT_EQ(height1,height2);
+}
+/////////AvVideoRenderPrepare Test///////////////////////////////
+TEST(AvVideoRenderPrepare,NormalTest)
+{
+	m_moduleHandle=NULL;
+	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
+	EXPECT_EQ(Success,ret);
+	ret = 1;
+	ret = AvVideoRenderPrepare(m_moduleHandle);
+	EXPECT_EQ(Success,ret);
+	CoutRet(ret);
+}
+TEST(AvVideoRenderPrepare,abNormalParaTest)
+{
+	m_moduleHandle=NULL;
+	//ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
+	//EXPECT_EQ(Success,ret);
+	ret = 1;
+	ret = AvVideoRenderPrepare(m_moduleHandle);
+	EXPECT_EQ(Success,ret);
+	CoutRet(ret);
+}
+TEST(AvVideoRenderPrepare,abNormalOrderTest)
+{
+	m_moduleHandle=NULL;
+
+	ret = 1;
+	ret = AvVideoRenderPrepare(m_moduleHandle);
+	EXPECT_EQ(Success,ret);
+	CoutRet(ret);
+	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
+	EXPECT_EQ(Success,ret);
+}
+TEST(AvVideoRenderPrepare,abNormalReCallTest)
+{
+	m_moduleHandle=NULL;
+	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
+	EXPECT_EQ(Success,ret);
+	ret = 1;
+	ret = AvVideoRenderPrepare(m_moduleHandle);
+	EXPECT_EQ(Success,ret);
+	CoutRet(ret);
+	ret = AvVideoRenderPrepare(m_moduleHandle);
+	EXPECT_EQ(Success,ret);
+	CoutRet(ret);
+}
+TEST(AvVideoRender,NormalTest)
+{
+	m_moduleHandle=NULL;
+	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
+	EXPECT_EQ(Success,ret);
+	ret = 1;
+	ret = AvVideoRenderPrepare(m_moduleHandle);
+	EXPECT_EQ(Success,ret);CoutRet(ret);
+	ret = AvVideoRender();
 }
 #endif  //test code end
 
-/*m_buffer = NULL;
-
-m_moduleHandle = NULL;
-LONG ret = Success;
-
-
-ret = AvModuleOpen(Av_VideoRender, &m_moduleHandle);
-
-if (ret != Success)
-{
-	MessageBox(L"Failed to open the module");
-} else {
-	HWND hwnd;
-	GetDlgItem(IDC_DISP_RND, &hwnd);
-	ULONG wndHandle = ULONG(hwnd);
-	ret = AvPropertyWrite(m_moduleHandle, Para_WindowHandle, sizeof(wndHandle), &wndHandle, 0 );
-
-	if(ret != Success)
-	{
-		MessageBox(L"Failed to set Para_WindowHandle");
-	}
-
-	ULONG width = FILE_WIDTH;
-	ret = AvPropertyWrite(m_moduleHandle, Para_WindowWidth, sizeof(width), &width, 0 );
-	if(ret != Success)
-	{
-		MessageBox(L"Failed to set Para_WindowWidth");
-	}
-
-	ULONG height = FILE_HEIGHT;
-	ret = AvPropertyWrite(m_moduleHandle, Para_WindowHeight, sizeof(height), &height, 0 );
-	if(ret != Success)
-	{
-		MessageBox(L"Failed to set Para_WindowHeight");
-	}
-*/
