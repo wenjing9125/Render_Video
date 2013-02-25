@@ -71,6 +71,7 @@ BEGIN_MESSAGE_MAP(CRender_VideoDlg, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON1, &CRender_VideoDlg::OnBnClickedButton1)
 	ON_BN_CLICKED(IDC_BUTTON3, &CRender_VideoDlg::OnBnClickedButton3)
 	ON_BN_CLICKED(IDC_BUTTON2, &CRender_VideoDlg::OnBnClickedButton2)
+	ON_BN_CLICKED(IDC_BUTTON4, &CRender_VideoDlg::OnBnClickedButton4)
 END_MESSAGE_MAP()
 
 
@@ -104,12 +105,64 @@ BOOL CRender_VideoDlg::OnInitDialog()
 
 	// TODO: Add extra initialization here
 	//////////////////////////////////////////////////////////////////////////
+	////AvSDK
+	//m_buffer = NULL;
+
+	//m_moduleHandle = NULL;
+	//LONG ret = Success;
+	//
+
+	//ret = AvModuleOpen(Av_VideoRender, &m_moduleHandle);
+
+	//if (ret != Success)
+	//{
+	//	MessageBox(L"Failed to open the module");
+	//} else {
+	//	GetDlgItem(IDC_DISP_RND, &hwnd);
+	//	ULONG wndHandle = ULONG(hwnd);
+	//	ret = AvPropertyWrite(m_moduleHandle, Para_WindowHandle, sizeof(wndHandle), &wndHandle, 0 );
+
+	//	if(ret != Success)
+	//	{
+	//		MessageBox(L"Failed to set Para_WindowHandle");
+	//	}
+
+	//	ULONG width = FILE_WIDTH;
+	//	ret = AvPropertyWrite(m_moduleHandle, Para_WindowWidth, sizeof(width), &width, 0 );
+	//	if(ret != Success)
+	//	{
+	//		MessageBox(L"Failed to set Para_WindowWidth");
+	//	}
+
+	//	ULONG height = FILE_HEIGHT;
+	//	ret = AvPropertyWrite(m_moduleHandle, Para_WindowHeight, sizeof(height), &height, 0 );
+	//	if(ret != Success)
+	//	{
+	//		MessageBox(L"Failed to set Para_WindowHeight");
+	//	}
+
+
+
+	//	ret = AdditionalPropertyAccess();
+	//
+	//	if (ret != Success)
+	//	{
+	//		MessageBox(L"Failed to access the property");
+	//	}
+	//}
+	//////////////////////////////////////////////////////////////////////////
+	return TRUE;  // return TRUE  unless you set the focus to a control
+}
+
+void CRender_VideoDlg::OnBnClickedButton4()
+{
+	// Initial 
 	//AvSDK
 	m_buffer = NULL;
 
 	m_moduleHandle = NULL;
 	LONG ret = Success;
-	
+
 
 	ret = AvModuleOpen(Av_VideoRender, &m_moduleHandle);
 
@@ -117,7 +170,6 @@ BOOL CRender_VideoDlg::OnInitDialog()
 	{
 		MessageBox(L"Failed to open the module");
 	} else {
-		HWND hwnd;
 		GetDlgItem(IDC_DISP_RND, &hwnd);
 		ULONG wndHandle = ULONG(hwnd);
 		ret = AvPropertyWrite(m_moduleHandle, Para_WindowHandle, sizeof(wndHandle), &wndHandle, 0 );
@@ -144,16 +196,14 @@ BOOL CRender_VideoDlg::OnInitDialog()
 
 
 		ret = AdditionalPropertyAccess();
-	
+
 		if (ret != Success)
 		{
 			MessageBox(L"Failed to access the property");
 		}
 	}
-	//////////////////////////////////////////////////////////////////////////
-	return TRUE;  // return TRUE  unless you set the focus to a control
-}
 
+}
 void CRender_VideoDlg::OnSysCommand(UINT nID, LPARAM lParam)
 {
 	if ((nID & 0xFFF0) == IDM_ABOUTBOX)
@@ -424,11 +474,10 @@ void CRender_VideoDlg::OnBnClickedButton3()
 			MessageBox(L"VideoRenderRelease Failed");
 		}
 	}
-
 }
 
 ///Test code ////////////
-#ifdef GTEST
+//#ifdef GTEST
 #include <iostream>
 using namespace std;
 #include <stdio.h>
@@ -671,7 +720,7 @@ TEST (Feature_RenderMethods,NormalReadTest)
 	bufSizeCur = bufSizeNeed;
 	ret = AvPropertyRead(m_moduleHandle, Feature_RenderMethods, bufSizeCur, buffer, &bufSizeNeed, &attr );
 	EXPECT_EQ(Success,ret);cout<<"Feature_RenderMethods:";
-	for (int i = 0;i < bufSizeCur;i++)
+	for ( int i = 0; i < bufSizeCur; i++ )
 	{
 		cout<<(ULONG)buffer[i];
 	}
@@ -707,8 +756,9 @@ TEST (Feature_FourCCs,NormalReadTest)
 	EXPECT_EQ(Success,ret);
 	cout<<"MAKEFOURCC('Y', 'V', '1', '2')="<<MAKEFOURCC('Y', 'V', '1', '2')<<endl;
 	cout<<"Feature_FourCCs:";
-	int bufValue=0;int j=0;
-	for (int i = 0;i < bufSizeCur;i++)
+	int bufValue=0;
+	int j=0;
+	for ( int i = 0; i < bufSizeCur; i++)
 	{
 		//cout<<(ULONG)buffer[i];
 		bufValue=bufValue|((ULONG)buffer[i] << j);
@@ -903,6 +953,17 @@ TEST(AvVideoRenderPrepare,NormalTest)
 	m_moduleHandle=NULL;
 	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
 	EXPECT_EQ(Success,ret);
+	///set para///////////////
+	ULONG wndHandle = ULONG(hwnd);
+	ret = AvPropertyWrite(m_moduleHandle, Para_WindowHandle, sizeof(wndHandle), &wndHandle, 0 );
+	EXPECT_EQ(Success,ret)<<"Para_WindowHandle write failed!";
+	ULONG width = FILE_WIDTH;
+	ret = AvPropertyWrite(m_moduleHandle, Para_WindowWidth, sizeof(width), &width, 0 );
+	EXPECT_EQ(Success,ret)<<"Para_WindowWidth write failed!";
+	ULONG height = FILE_HEIGHT;
+	ret = AvPropertyWrite(m_moduleHandle, Para_WindowHeight, sizeof(height), &height, 0 );
+	EXPECT_EQ(Success,ret)<<"Para_WindowHeight write failed!";
+	/////////////////
 	ret = 1;
 	ret = AvVideoRenderPrepare(m_moduleHandle);
 	EXPECT_EQ(Success,ret);
@@ -934,6 +995,17 @@ TEST(AvVideoRenderPrepare,abNormalReCallTest)
 	m_moduleHandle=NULL;
 	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
 	EXPECT_EQ(Success,ret);
+	///set para///////////////
+	ULONG wndHandle = ULONG(hwnd);
+	ret = AvPropertyWrite(m_moduleHandle, Para_WindowHandle, sizeof(wndHandle), &wndHandle, 0 );
+	EXPECT_EQ(Success,ret)<<"Para_WindowHandle write failed!";
+	ULONG width = FILE_WIDTH;
+	ret = AvPropertyWrite(m_moduleHandle, Para_WindowWidth, sizeof(width), &width, 0 );
+	EXPECT_EQ(Success,ret)<<"Para_WindowWidth write failed!";
+	ULONG height = FILE_HEIGHT;
+	ret = AvPropertyWrite(m_moduleHandle, Para_WindowHeight, sizeof(height), &height, 0 );
+	EXPECT_EQ(Success,ret)<<"Para_WindowHeight write failed!";
+	///////////////////
 	ret = 1;
 	ret = AvVideoRenderPrepare(m_moduleHandle);
 	EXPECT_EQ(Success,ret);
@@ -942,15 +1014,53 @@ TEST(AvVideoRenderPrepare,abNormalReCallTest)
 	EXPECT_EQ(Success,ret);
 	CoutRet(ret);
 }
+/////////AvVideoRender Test///////////////////////////////
+void openImage(void);
 TEST(AvVideoRender,NormalTest)
 {
 	m_moduleHandle=NULL;
 	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
 	EXPECT_EQ(Success,ret);
+	///set para///////////////
+	ULONG wndHandle = ULONG(hwnd);
+	ret = AvPropertyWrite(m_moduleHandle, Para_WindowHandle, sizeof(wndHandle), &wndHandle, 0 );
+	EXPECT_EQ(Success,ret)<<"Para_WindowHandle write failed!";
+	ULONG width = FILE_WIDTH;
+	ret = AvPropertyWrite(m_moduleHandle, Para_WindowWidth, sizeof(width), &width, 0 );
+	EXPECT_EQ(Success,ret)<<"Para_WindowWidth write failed!";
+	ULONG height = FILE_HEIGHT;
+	ret = AvPropertyWrite(m_moduleHandle, Para_WindowHeight, sizeof(height), &height, 0 );
+	EXPECT_EQ(Success,ret)<<"Para_WindowHeight write failed!";
+	///////////////////
+	openImage();
 	ret = 1;
 	ret = AvVideoRenderPrepare(m_moduleHandle);
-	EXPECT_EQ(Success,ret);CoutRet(ret);
-	ret = AvVideoRender();
-}
-#endif  //test code end
+	EXPECT_EQ(Success,ret)<<"AvVideoRenderPrepare failed!";CoutRet(ret);
 
+	ret = 1;
+	ret = AvVideoRender(m_moduleHandle, m_buffer, m_bufLen);
+	EXPECT_EQ(Success,ret)<<"AvVideoRender failed!";
+	CoutRet(ret);
+}
+//#endif  //test code end
+
+void openImage(void)
+{
+	FILE * f = fopen("D:\\Video team\\VideoSDK\\Test\\resources\\YV12_176_144\\carphone080.yuv", "rb");
+	if ( f == NULL )
+	{
+		AfxMessageBox(L"Can't open file");
+		return;
+	}
+
+	if (m_buffer)
+	{
+		delete [] m_buffer;
+	}
+	m_bufLen = FILE_WIDTH * FILE_HEIGHT * 3 / 2;
+	m_buffer = new BYTE[m_bufLen];
+	memset(m_buffer, 0, m_bufLen);
+	UINT len = fread(m_buffer, 1, m_bufLen, f );
+
+	fclose(f);
+}

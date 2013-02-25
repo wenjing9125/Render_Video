@@ -100,6 +100,7 @@ BEGIN
     PUSHBUTTON      "Prepare",IDC_BUTTON2,26,39,68,16
     PUSHBUTTON      "Release",IDC_BUTTON3,26,83,68,16
     LTEXT           "Render",IDC_STATIC,171,14,62,14
+    PUSHBUTTON      "Initial",IDC_BUTTON4,26,15,68,19
 END
 
 

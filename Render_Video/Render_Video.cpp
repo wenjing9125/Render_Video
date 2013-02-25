@@ -64,7 +64,7 @@ CRender_VideoApp theApp;
 
 BOOL CRender_VideoApp::InitInstance()
 {	
-#ifdef GTEST
+//#ifdef GTEST
 	CConsole cc;  
 	int argc = 0;  
 	TCHAR* argv = _T("");
@@ -73,10 +73,10 @@ BOOL CRender_VideoApp::InitInstance()
 	RUN_ALL_TESTS();  
 	HWND hwnd = GetConsoleWindow();  
 	SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE);  
-	AfxMessageBox(_T("about to exit!"));  
-	return false;
+	//AfxMessageBox(_T("about to exit!"));  
+	//return false;
 
-#else
+//#else
 
 
 	// InitCommonControlsEx() is required on Windows XP if an application
@@ -120,5 +120,5 @@ BOOL CRender_VideoApp::InitInstance()
 	//  application, rather than start the application's message pump.
 
 	return FALSE;
-#endif //GTEST
+//#endif //GTEST
 }
