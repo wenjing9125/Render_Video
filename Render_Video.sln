@@ -7,7 +7,6 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
 		Debug-Test|Win32 = Debug-Test|Win32
-		Debug-TestAll|Win32 = Debug-TestAll|Win32
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
@@ -15,8 +14,6 @@ Global
 		{832CD286-AB1F-43A7-B738-546C022A5D43}.Debug|Win32.Build.0 = Debug|Win32
 		{832CD286-AB1F-43A7-B738-546C022A5D43}.Debug-Test|Win32.ActiveCfg = Debug-Test|Win32
 		{832CD286-AB1F-43A7-B738-546C022A5D43}.Debug-Test|Win32.Build.0 = Debug-Test|Win32
-		{832CD286-AB1F-43A7-B738-546C022A5D43}.Debug-TestAll|Win32.ActiveCfg = Debug-TestAll|Win32
-		{832CD286-AB1F-43A7-B738-546C022A5D43}.Debug-TestAll|Win32.Build.0 = Debug-TestAll|Win32
 		{832CD286-AB1F-43A7-B738-546C022A5D43}.Release|Win32.ActiveCfg = Release|Win32
 		{832CD286-AB1F-43A7-B738-546C022A5D43}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection

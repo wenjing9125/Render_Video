@@ -6,7 +6,7 @@ public:
 	CConsole(void);  
 	virtual ~CConsole(void);  
 private:  
-};  
+}; 
 
 #include "stdafx.h"
 #include "Render_Video.h"
@@ -64,7 +64,7 @@ CRender_VideoApp theApp;
 
 BOOL CRender_VideoApp::InitInstance()
 {	
-//#ifdef GTEST
+#ifdef GTEST
 	CConsole cc;  
 	int argc = 0;  
 	TCHAR* argv = _T("");
@@ -72,11 +72,12 @@ BOOL CRender_VideoApp::InitInstance()
 	testing::InitGoogleTest(&argc, &argv);  
 	RUN_ALL_TESTS();  
 	HWND hwnd = GetConsoleWindow();  
-	SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE);  
-	//AfxMessageBox(_T("about to exit!"));  
-	//return false;
+	SetWindowPos(hwnd, HWND_TOP,500,250,0,0, /*SWP_NOMOVE|*/SWP_NOSIZE);  
+	AfxMessageBox(_T("about to exit!"));  
+	//std::cin.get();
+	return false;
 
-//#else
+#else
 
 
 	// InitCommonControlsEx() is required on Windows XP if an application
@@ -118,7 +119,6 @@ BOOL CRender_VideoApp::InitInstance()
 
 	// Since the dialog has been closed, return FALSE so that we exit the
 	//  application, rather than start the application's message pump.
-
 	return FALSE;
-//#endif //GTEST
+#endif //GTEST
 }

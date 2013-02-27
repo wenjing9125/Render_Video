@@ -35,7 +35,7 @@ private:
 	HANDLE m_moduleHandle;
 	PBYTE  m_buffer;
 	ULONG  m_bufLen;
-
+public:
 	HWND hwnd;
 ///////////////////////////////////////////////////////////////////
 public:
@@ -45,4 +45,5 @@ public:
 	afx_msg void OnBnClickedButton2();
 	
 	afx_msg void OnBnClickedButton4();
+	afx_msg void OnBnClickedButton5();
 };

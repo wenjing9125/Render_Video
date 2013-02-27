@@ -11,8 +11,9 @@
 #define IDC_BUTTON2                     1001
 #define IDC_BUTTON3                     1002
 #define IDC_BUTTON4                     1003
-#define IDC_DISP_RND					1005
-
+#define IDC_DISP_RND                    1005
+#define IDC_BUTTON5                     1006
+#define IDC_BUTTON_in                   1007
 
 // Next default values for new objects
 // 
@@ -20,7 +21,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        129
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1006
+#define _APS_NEXT_CONTROL_VALUE         1008
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

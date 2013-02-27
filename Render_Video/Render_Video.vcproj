@@ -355,6 +355,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\RenderVideoTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.cpp"
 				>
 				<FileConfiguration
