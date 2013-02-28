@@ -69,6 +69,7 @@ BOOL CRender_VideoApp::InitInstance()
 	int argc = 0;  
 	TCHAR* argv = _T("");
 	//testing::GTEST_FLAG(output) = "xml:"; //加上这条则测试结果以xml格式保存下来。保存路径可以修改，如"xml:d/"表示保存到d:下 
+	
 	testing::InitGoogleTest(&argc, &argv);  
 	RUN_ALL_TESTS();  
 	HWND hwnd = GetConsoleWindow();  

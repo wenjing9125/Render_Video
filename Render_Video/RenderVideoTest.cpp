@@ -1,9 +1,13 @@
 #include "stdafx.h"
 #ifdef GTEST
 #include "stdafx.h"
+#include <string>
+#include <sstream>
 #include <iostream>
 using namespace std;
 #include <stdio.h>
+
+
 
 #define FILE_WIDTH   176
 #define FILE_HEIGHT  144
@@ -20,9 +24,10 @@ void CoutRet(LONG data)
 
 }
 
-void openImage(void)
+void openImage(/*char *fname,int fnameSize*/)
 {
-	FILE * f = fopen("D:\\Video team\\VideoSDK\\Test\\resources\\YV12_176_144\\carphone080.yuv", "rb");
+	char str[100]="D:\\Video team\\VideoSDK\\Test\\resources\\YV12_176_144\\carphone080.yuv";
+	FILE * f = fopen(str, "rb");
 	if ( f == NULL )
 	{
 		AfxMessageBox(L"Can't open file");
@@ -579,6 +584,25 @@ TEST(AvVideoRenderPrepare,abNormalParaTest)
 	EXPECT_EQ(Success,ret);
 	CoutRet(ret);
 }
+TEST(AvVideoRenderPrepare,abNormalNosetParaTest)
+{
+	m_moduleHandle=NULL;
+	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
+	EXPECT_EQ(Success,ret);
+	//ULONG wndHandle = ULONG(hwnd);
+	//ret = AvPropertyWrite(m_moduleHandle, Para_WindowHandle, sizeof(wndHandle), &wndHandle, 0 );
+	//EXPECT_EQ(Success,ret)<<"Para_WindowHandle write failed!";
+	//ULONG width = FILE_WIDTH;
+	//ret = AvPropertyWrite(m_moduleHandle, Para_WindowWidth, sizeof(width), &width, 0 );
+	//EXPECT_EQ(Success,ret)<<"Para_WindowWidth write failed!";
+	//ULONG height = FILE_HEIGHT;
+	//ret = AvPropertyWrite(m_moduleHandle, Para_WindowHeight, sizeof(height), &height, 0 );
+	//EXPECT_EQ(Success,ret)<<"Para_WindowHeight write failed!";
+	ret = 1;
+	ret = AvVideoRenderPrepare(m_moduleHandle);
+	EXPECT_EQ(Success,ret);
+	CoutRet(ret);
+}
 TEST(AvVideoRenderPrepare,abNormalOrderTest)
 {
 	m_moduleHandle=NULL;
@@ -658,11 +682,103 @@ TEST_F (T_AvVideoRender,NormalTest)
 	EXPECT_EQ(Success,ret)<<"AvVideoRender failed!";
 	CoutRet(ret);
 }
-TEST_F (T_AvVideoRender,abNormalParaTest)
+TEST_F (T_AvVideoRender,abNormalHandleNULLTest)
 {
 	ret = 1;
 	ret = AvVideoRender(NULL, m_buffer, m_bufLen);
 	EXPECT_EQ(ErrorHandleNotValid,ret)<<"m_moduleHandle=NULL!";
-	//ret = AvVideoRender()
+}
+TEST_F (T_AvVideoRender,abNormalBufferNULLTest)
+{
+	ret = 1;
+	ret = AvVideoRender(m_moduleHandle,NULL,m_bufLen);
+	EXPECT_EQ(Success,ret)<<"m_buffer=NULL!";
+	CoutRet(ret);
+}
+TEST_F (T_AvVideoRender,abNormalBufLenZeroTest)
+{
+	ret = 1;
+	ret = AvVideoRender(m_moduleHandle,m_buffer,0);
+	EXPECT_EQ(Success,ret)<<"m_bufLen=0!";
+	CoutRet(ret);
+}
+TEST (AvVideoRender,abNormalNoPrepareTest)
+{
+	m_moduleHandle=NULL;
+	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
+	EXPECT_EQ(Success,ret);
+	EXPECT_NE((HANDLE)NULL,m_moduleHandle);
+
+	//////////////////////////
+	openwindow();
+	//////////////////////////
+	openImage();
+	ret = 1;
+	ret = AvVideoRender(m_moduleHandle,m_buffer,m_bufLen);
+	EXPECT_EQ(ErrorFuncNotInited,ret)<<"no prepare!";
+	CoutRet(ret);
+}
+TEST (AvVideoRender,abNormalReCallTest)
+{
+	m_moduleHandle=NULL;
+	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
+	EXPECT_EQ(Success,ret);
+	EXPECT_NE((HANDLE)NULL,m_moduleHandle);
+
+	///set para///////////////
+	//////////////////////////
+	openwindow();
+	//////////////////////////
+	ULONG wndHandle = ULONG(hwnd);
+	ret = AvPropertyWrite(m_moduleHandle, Para_WindowHandle, sizeof(wndHandle), &wndHandle, 0 );
+	EXPECT_EQ(Success,ret)<<"Para_WindowHandle write failed!";
+	ULONG width = FILE_WIDTH;
+	ret = AvPropertyWrite(m_moduleHandle, Para_WindowWidth, sizeof(width), &width, 0 );
+	EXPECT_EQ(Success,ret)<<"Para_WindowWidth write failed!";
+	ULONG height = FILE_HEIGHT;
+	ret = AvPropertyWrite(m_moduleHandle, Para_WindowHeight, sizeof(height), &height, 0 );
+	EXPECT_EQ(Success,ret)<<"Para_WindowHeight write failed!";
+
+	ret = 1;
+	ret = AvVideoRenderPrepare(m_moduleHandle);
+	EXPECT_EQ(Success,ret)<<"AvVideoRenderPrepare failed!";CoutRet(ret);
+	///////////////////
+
+	if (m_buffer)
+	{
+		delete [] m_buffer;
+	}
+	m_bufLen = FILE_WIDTH * FILE_HEIGHT * 3 / 2;
+	m_buffer = new BYTE[m_bufLen];
+	memset(m_buffer, 0, m_bufLen);
+    
+	string str,str1,str2,str3;
+	stringstream ss;
+	str1="D:\\Video team\\VideoSDK\\Test\\resources\\YV12_176_144\\carphone0";
+	str3=".yuv";
+	char fname[100];
+	for (int i=10;i<=96;i++)
+	{	
+
+			ss << i;
+			ss >> str2;
+			str=str1+str2+str3;
+
+		strcpy(fname,str.c_str());
+        AfxMessageBox(L"NEXT");
+	
+		FILE * f = fopen(fname, "rb");
+		if ( f == NULL )
+		{
+			AfxMessageBox(L"Can't open file");
+			return;
+		}
+		UINT len = fread(m_buffer, 1, m_bufLen, f );
+
+		fclose(f);
+		ret = 1;
+		ret = AvVideoRender(m_moduleHandle,m_buffer,m_bufLen);
+		EXPECT_EQ(Success,ret);
+	}//end for
 }
 #endif  //test code end
