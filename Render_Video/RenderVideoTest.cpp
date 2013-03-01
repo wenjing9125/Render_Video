@@ -9,8 +9,10 @@ using namespace std;
 
 
 
-#define FILE_WIDTH   176
-#define FILE_HEIGHT  144
+#define FILE_WIDTH   720
+#define FILE_HEIGHT  576
+#define IMG_NAME "D:\\Video team\\VideoSDK\\Test\\resources\\YV12_720_576.yuv"
+/*"D:\\Video team\\VideoSDK\\Test\\resources\\YV12_176_144\\carphone080.yuv"*/
 
 HANDLE m_moduleHandle=NULL;
 PBYTE  m_buffer=NULL;
@@ -24,9 +26,9 @@ void CoutRet(LONG data)
 
 }
 
-void openImage(/*char *fname,int fnameSize*/)
+void openImage()
 {
-	char str[100]="D:\\Video team\\VideoSDK\\Test\\resources\\YV12_176_144\\carphone080.yuv";
+	char str[100]=IMG_NAME;
 	FILE * f = fopen(str, "rb");
 	if ( f == NULL )
 	{
@@ -157,7 +159,7 @@ TEST (AvModuleClose,abNormalReCallTest)
 	ret = AvModuleClose(m_moduleHandle);
 	ret = AvModuleClose(m_moduleHandle);
 	EXPECT_EQ(ErrorDeviceUnrecognized,ret);
-	EXPECT_EQ(NULL,m_moduleHandle);
+	//EXPECT_EQ(NULL,m_moduleHandle);
 	CoutRet(ret);
 }
 
@@ -619,7 +621,7 @@ TEST(AvVideoRenderPrepare,abNormalReCallTest)
 	m_moduleHandle=NULL;
 	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
 	EXPECT_EQ(Success,ret);
-	///set para///////////////
+	///////set para///////////////
 
 	ULONG wndHandle = ULONG(hwnd);
 	ret = AvPropertyWrite(m_moduleHandle, Para_WindowHandle, sizeof(wndHandle), &wndHandle, 0 );
@@ -682,6 +684,16 @@ TEST_F (T_AvVideoRender,NormalTest)
 	EXPECT_EQ(Success,ret)<<"AvVideoRender failed!";
 	CoutRet(ret);
 }
+TEST_F (T_AvVideoRender,abNormalAfterReleaseTest)
+{
+	ret = 1;
+	ret = AvVideoRenderRelease(m_moduleHandle);
+	EXPECT_EQ(Success,ret);
+	ret = 1;
+	ret = AvVideoRender(m_moduleHandle, m_buffer, m_bufLen);
+	EXPECT_EQ(ErrorFuncNotInited,ret)<<"AvVideoRender failed!";
+	CoutRet(ret);
+}
 TEST_F (T_AvVideoRender,abNormalHandleNULLTest)
 {
 	ret = 1;
@@ -692,7 +704,7 @@ TEST_F (T_AvVideoRender,abNormalBufferNULLTest)
 {
 	ret = 1;
 	ret = AvVideoRender(m_moduleHandle,NULL,m_bufLen);
-	EXPECT_EQ(Success,ret)<<"m_buffer=NULL!";
+	EXPECT_EQ(ErrorBufferIsNull,ret)<<"m_buffer=NULL!";
 	CoutRet(ret);
 }
 TEST_F (T_AvVideoRender,abNormalBufLenZeroTest)
@@ -703,7 +715,7 @@ TEST_F (T_AvVideoRender,abNormalBufLenZeroTest)
 	CoutRet(ret);
 }
 TEST (AvVideoRender,abNormalNoPrepareTest)
-{
+{ 
 	m_moduleHandle=NULL;
 	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
 	EXPECT_EQ(Success,ret);
@@ -727,15 +739,34 @@ TEST (AvVideoRender,abNormalReCallTest)
 
 	///set para///////////////
 	//////////////////////////
-	openwindow();
+	//openwindow();
+	WCHAR wndClass[] = L"VideoRender"; 
+	WCHAR title[] = L"Advantech Video Render";
+	WNDCLASSEX wcx = {0}; 
+	wcx.cbSize = sizeof(wcx);          
+	wcx.style = CS_HREDRAW | CS_VREDRAW; 
+	wcx.lpfnWndProc = (WNDPROC)DefWindowProc;      
+	wcx.cbClsExtra = 0;               
+	wcx.cbWndExtra = 0;               
+	wcx.hInstance = NULL;        
+	wcx.hIcon = NULL;
+	wcx.hCursor = LoadCursor(NULL, IDC_ARROW);   
+	wcx.hbrBackground = (HBRUSH)COLOR_WINDOWFRAME;    
+	wcx.lpszMenuName = NULL;    
+	wcx.lpszClassName = wndClass;
+	RegisterClassEx(&wcx); 
+	ULONG imageWidth = 176;
+	ULONG imageHeight = 144;
+
+	hwnd = CreateWindow( wndClass, title, WS_OVERLAPPEDWINDOW | WS_VISIBLE, 0, 0, imageWidth, imageHeight, NULL, NULL, NULL, NULL );
 	//////////////////////////
 	ULONG wndHandle = ULONG(hwnd);
 	ret = AvPropertyWrite(m_moduleHandle, Para_WindowHandle, sizeof(wndHandle), &wndHandle, 0 );
 	EXPECT_EQ(Success,ret)<<"Para_WindowHandle write failed!";
-	ULONG width = FILE_WIDTH;
+	ULONG width = 176;
 	ret = AvPropertyWrite(m_moduleHandle, Para_WindowWidth, sizeof(width), &width, 0 );
 	EXPECT_EQ(Success,ret)<<"Para_WindowWidth write failed!";
-	ULONG height = FILE_HEIGHT;
+	ULONG height = 144;
 	ret = AvPropertyWrite(m_moduleHandle, Para_WindowHeight, sizeof(height), &height, 0 );
 	EXPECT_EQ(Success,ret)<<"Para_WindowHeight write failed!";
 
@@ -748,24 +779,25 @@ TEST (AvVideoRender,abNormalReCallTest)
 	{
 		delete [] m_buffer;
 	}
-	m_bufLen = FILE_WIDTH * FILE_HEIGHT * 3 / 2;
+	m_bufLen = 176 * 144 * 3 / 2;
 	m_buffer = new BYTE[m_bufLen];
 	memset(m_buffer, 0, m_bufLen);
     
-	string str,str1,str2,str3;
+	string str,str1,str3;
 	stringstream ss;
 	str1="D:\\Video team\\VideoSDK\\Test\\resources\\YV12_176_144\\carphone0";
 	str3=".yuv";
-	char fname[100];
+	const char *fname;
+	char str2[25];
 	for (int i=10;i<=96;i++)
 	{	
 
-			ss << i;
-			ss >> str2;
-			str=str1+str2+str3;
-
-		strcpy(fname,str.c_str());
-        AfxMessageBox(L"NEXT");
+		sprintf (str2,"%d",i);
+		str=str1+str2+str3;
+		fname= str.c_str();
+		
+        //AfxMessageBox(L"NEXT");
+	    Sleep(100);
 	
 		FILE * f = fopen(fname, "rb");
 		if ( f == NULL )
@@ -780,5 +812,102 @@ TEST (AvVideoRender,abNormalReCallTest)
 		ret = AvVideoRender(m_moduleHandle,m_buffer,m_bufLen);
 		EXPECT_EQ(Success,ret);
 	}//end for
+}
+///////////AvVideoRenderRelease Test///////////////////////////////
+class T_AvVideoRenderRelease: public testing::Test
+{
+protected:
+	static void SetUpTestCase(){
+		m_moduleHandle=NULL;
+		ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
+		EXPECT_EQ(Success,ret);
+		EXPECT_NE((HANDLE)NULL,m_moduleHandle);
+
+		///set para///////////////
+		//////////////////////////
+		openwindow();
+		//////////////////////////
+		ULONG wndHandle = ULONG(hwnd);
+		ret = AvPropertyWrite(m_moduleHandle, Para_WindowHandle, sizeof(wndHandle), &wndHandle, 0 );
+		EXPECT_EQ(Success,ret)<<"Para_WindowHandle write failed!";
+		ULONG width = FILE_WIDTH;
+		ret = AvPropertyWrite(m_moduleHandle, Para_WindowWidth, sizeof(width), &width, 0 );
+		EXPECT_EQ(Success,ret)<<"Para_WindowWidth write failed!";
+		ULONG height = FILE_HEIGHT;
+		ret = AvPropertyWrite(m_moduleHandle, Para_WindowHeight, sizeof(height), &height, 0 );
+		EXPECT_EQ(Success,ret)<<"Para_WindowHeight write failed!";
+
+		ret = 1;
+		ret = AvVideoRenderPrepare(m_moduleHandle);
+		EXPECT_EQ(Success,ret)<<"AvVideoRenderPrepare failed!";CoutRet(ret);
+		///////////////////
+		openImage();
+		/////////////////////
+		ret = 1;
+		ret = AvVideoRender(m_moduleHandle,m_buffer,m_bufLen);
+		EXPECT_EQ(Success,ret);
+	}
+	static void TearDownTestCase(){
+	}
+};
+TEST_F (T_AvVideoRenderRelease,NormalTest)
+{
+	ret = 1;
+	ret = AvVideoRenderRelease(m_moduleHandle);
+	EXPECT_EQ(Success,ret)<<"AvVideoRenderRelease failed!";
+	CoutRet(ret);
+}
+TEST_F (T_AvVideoRenderRelease,abNormalReCallTest)
+{
+	ret = 1;
+	ret = AvVideoRenderRelease(m_moduleHandle);
+	EXPECT_EQ(Success,ret)<<"first AvVideoRenderRelease failed!";
+	ret = 1;
+	ret = AvVideoRenderRelease(m_moduleHandle);
+	EXPECT_EQ(Success,ret)<<"second AvVideoRenderRelease failed!";
+	CoutRet(ret);
+}
+TEST (AvVideoRenderRelease,abNormalParaTest)
+{
+	ret = 1;
+	ret = AvVideoRenderRelease(NULL);
+	EXPECT_EQ(Success,ret)<<"handle is NULL";
+	CoutRet(ret);
+}
+TEST (AvVideoRenderRelease,abNormalNoprepareTest)
+{
+	m_moduleHandle = NULL;
+	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
+	EXPECT_EQ(Success,ret)<<"Module open failed!";
+
+	ret = 1;
+	ret = AvVideoRenderRelease(m_moduleHandle);
+	EXPECT_EQ(Success,ret)<<"no prepare!";
+	CoutRet(ret);
+}
+TEST (AvVideoRenderRelease,abNormalNoRenderTest)
+{
+	m_moduleHandle=NULL;
+	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
+	EXPECT_EQ(Success,ret);
+	///set para///////////////
+	ULONG wndHandle = ULONG(hwnd);
+
+	ret = AvPropertyWrite(m_moduleHandle, Para_WindowHandle, sizeof(wndHandle), &wndHandle, 0 );
+	EXPECT_EQ(Success,ret)<<"Para_WindowHandle write failed!";
+	ULONG width = FILE_WIDTH;
+	ret = AvPropertyWrite(m_moduleHandle, Para_WindowWidth, sizeof(width), &width, 0 );
+	EXPECT_EQ(Success,ret)<<"Para_WindowWidth write failed!";
+	ULONG height = FILE_HEIGHT;
+	ret = AvPropertyWrite(m_moduleHandle, Para_WindowHeight, sizeof(height), &height, 0 );
+	EXPECT_EQ(Success,ret)<<"Para_WindowHeight write failed!";
+	/////////////////
+	ret = 1;
+	ret = AvVideoRenderPrepare(m_moduleHandle);
+	EXPECT_EQ(Success,ret)<<"AvVideoRenderPrepare failed!";
+	ret = 1;
+	ret = AvVideoRenderRelease(m_moduleHandle);
+	EXPECT_EQ(Success,ret)<<"AvVideoRenderRelease failed!!";
+	CoutRet(ret);
 }
 #endif  //test code end
