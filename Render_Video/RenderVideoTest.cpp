@@ -274,8 +274,8 @@ TEST_F (T_AvPropertyWrite,abNormalParaTest)
 	ret = AvPropertyWrite(NULL, Para_RenderMethod, sizeof(renderMethod), &renderMethod, notifyNow );
 	EXPECT_EQ(ErrorHandleNotValid,ret);cout<<"handle=NULL";
 	CoutRet(ret);
-	ret = AvPropertyWrite(m_moduleHandle, 78, sizeof(renderMethod), &renderMethod, notifyNow );
-	EXPECT_EQ(ErrorPropNotSpted,ret);cout<<"PropertyId=78 (0-77);";
+	ret = AvPropertyWrite(m_moduleHandle, 90, sizeof(renderMethod), &renderMethod, notifyNow );
+	EXPECT_EQ(ErrorPropNotSpted,ret);cout<<"PropertyId=90 (0-77);";
 	CoutRet(ret);
 	ret = AvPropertyWrite(m_moduleHandle, Para_RenderMethod, 0, &renderMethod, notifyNow );
 	EXPECT_EQ(ErrorBufferTooSmall,ret);cout<<"dataLength=0;";
@@ -420,7 +420,7 @@ TEST (Para_RenderMethod,abNormalWriteTest)
 	EXPECT_EQ(ErrorPropValueNotSpted,ret);
 	CoutRet(ret);
 	ret = AvPropertyRead(m_moduleHandle, Para_RenderMethod, sizeof(renderMethod2), &renderMethod2, &bufSizeNeed, &attr );
-	EXPECT_NE(renderMethod1,renderMethod2)<<"renderMethod2= "<<renderMethod2<<endl;
+	EXPECT_NE(renderMethod1,renderMethod2);cout<<"renderMethod2= "<<renderMethod2<<endl;
 }
 
 /////////Para_FourCC Test///////////////////////////////
@@ -605,16 +605,26 @@ TEST(AvVideoRenderPrepare,abNormalNosetParaTest)
 	EXPECT_EQ(Success,ret);
 	CoutRet(ret);
 }
-TEST(AvVideoRenderPrepare,abNormalOrderTest)
+//TEST(AvVideoRenderPrepare,abNormalOrderTest)
+//{
+//	m_moduleHandle=NULL;
+//
+//	ret = 1;
+//	ret = AvVideoRenderPrepare(m_moduleHandle);
+//	EXPECT_EQ(Success,ret);
+//	CoutRet(ret);
+//}
+TEST(AvVideoRenderPrepare,abNormalAfterModuleCloseTest)
 {
 	m_moduleHandle=NULL;
-
-	ret = 1;
-	ret = AvVideoRenderPrepare(m_moduleHandle);
-	EXPECT_EQ(Success,ret);
-	CoutRet(ret);
 	ret = AvModuleOpen(Av_VideoRender,&m_moduleHandle);
 	EXPECT_EQ(Success,ret);
+	ret = AvModuleClose(m_moduleHandle);
+	ret = 1;
+	ret = AvVideoRenderPrepare(m_moduleHandle);
+	EXPECT_EQ(ErrorHandleNotValid,ret);
+	CoutRet(ret);
+
 }
 TEST(AvVideoRenderPrepare,abNormalReCallTest)
 {
@@ -872,6 +882,14 @@ TEST (AvVideoRenderRelease,abNormalParaTest)
 	ret = 1;
 	ret = AvVideoRenderRelease(NULL);
 	EXPECT_EQ(Success,ret)<<"handle is NULL";
+	CoutRet(ret);
+}
+TEST (AvVideoRenderRelease,abNormalAfterModuleCloseTest)
+{
+	ret= AvModuleClose(m_moduleHandle);
+	ret = 1;
+	ret = AvVideoRenderRelease(m_moduleHandle);
+	EXPECT_EQ(ErrorHandleNotValid,ret)<<"handle is NULL";
 	CoutRet(ret);
 }
 TEST (AvVideoRenderRelease,abNormalNoprepareTest)
